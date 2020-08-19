@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1597819912605.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "1CEA6F62",
+    "lastKnownWriteTime" : 1597818581,
+    "last_content_update" : 1597818581,
+    "path" : "~/R/Scripts/harvard_x/5_productivity_tools.R",
+    "project_path" : "5_productivity_tools.R",
+    "properties" : {
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
