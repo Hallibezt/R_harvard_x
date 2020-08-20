@@ -1,0 +1,81 @@
+install.packages("dslabs")  # to install a single package
+install.packages(c("tidyverse", "dslabs")） # to install two packages at the same time
+installed.packages() # to see the list of all installed packages
+ls() #see all save variables/objects of the script
+help("functionName") or ?functionName #gives me info about the function
+args("functionName") #more specific help, gives list of the arguments the function needs
+class("variable") #see the class of the object - numeric, data.frame(dataset)....
+data("someData.frame") #load data.frame
+str("someData.frame") #Information about the dataSet, i.e. nr of variables...
+nrow("someData.fram")  #returns number of rows
+head("someData.frame") #Shows first 6 rows
+factor class #Useful for creating containers to hold variables
+levels(murders$region) #show the factors
+murders["population"] #creates a new data.frame of the subset population
+murders[["population"]] #extracts the vector i.e. to assign to a varible
+table(murder$region) #Used for factors shows the number of variables each factor holds
+
+$ - to call columns of a row - i.e. murders$populations 
+
+ATH if functions used without parenthesis == you get the source code for the function i.e. ls instead of ls()
+
+
+Section 2 - Vectors
+
+The function c(), which stands for concatenate, is useful for creating vectors.
+seq(1,10,2) #Last arguement is what jumps to use i.e. here 1,3,5,7,9
+seq(0,100, length.out = 5)#Splits the seq to 5 parts: 0,25,50,75,100 
+code[2] or code[c(1,3)] # prints the variable in the vector at index 2 or in index 1 and 3
+as.character #turn numbers to char
+as.numeric #turns classes to numbers
+names(firstVector) <- secondVector #combines/associates vectors variables to each other
+sort(x) #gives the variables from lostrwest and up
+order(x) #gives the index of the varibles from lowest and up
+rank(x) #returns the index of the variables from lowest and up but does not sort them ATH rank(-x) gives the index from higest to lowest
+We can use this like index <- order(murders$total) and then order the states by that index : murders$states[index]
+Can use max(murders$totals) and which.max(murders$totals) that returns the index and use that like murders$states[index] to return the state name
+Create data.frame #take two vectors i.e. temp and city and combine in data.frame == city_temp <- data.frame(name = city, temperature = temp)
+mean(vector) #average
+
+Vector arithmetics
+Vector + vector = each index is summed up to the corrisponding one
+Vector - 7 = 7 is subtracted from each index individually
+
+Section 3 - indexes
+which(x) # gives me the indexes of vector x that are true
+match(c("someVariable","someVariable","someVariable"), VECTOR) #returns the indexes of the the former in the latter
+%in% # compare vectors and returns true for all elements in first that are found in latter, else false
+Combine them like which(!abbs%in%murders$abb) gets the indexes that are false when comparing vector abbs to vector murders$abb
+
+DATA WRANGLING USE %in% ALOT!!!!!!!!! for many options then use A %in% c(B) gives true
+Manilipulate data tables i.e. murders table - all part of the dplyr library
+mutate(dataTable, new column) #could be mutate(murders, rate = total/population*100000) ATH do not need dollar sign to call the columns
+filter(dataTable, filterArguement) # filter(murders, rate < 0.7) == new dataTable including these elements
+select(dataTable,theColumnsWeWant) #create smaller dataTable with just the columns we want from the used dataTable
+USING PIPES %>%
+dataTable %>% select(someColumns) %>% filter(argument) #I.e. murders %>% select(state,total,rate)%>% filter(rate < 0.7)
+Creating data.frame - default charachters becomes factors, so to make class char not factor last arguement must be stringAsFactors = FALSE
+
+Programming R
+ifelse(someCondition, ifTrueDO, elseFalseDo)  #combine if/else in one function ATH CAN RUN THIS ON VECTORS LIKE LOOPS
+no_nas <- ifelse(is.na(na_example), 0, na_example) #means if dataset na_example element is NA change it to 0 else use na_example element (which is the same == no change)
+any(vector) #in there is a true element returns TRUE
+all(vector) #if all true return TRUE
+Create a function:
+average <- function(x){ #Now we can use average(x) and then the sum of all elements in x is divided by index numbers of x
+s <- sum(x)
+l <- length(x)
+s/l
+}
+m <- 25
+emtpy_vector <- vector(length=m) #creates an empty vector of length m, that we can then assign elements to i.e. via for loop
+for (i in 1:m){
+empty_vector[n] <- doSomeThing(n)} #Takes each element from 1 to 25(m) does something to it and assigns it to the empty vector
+ATH for loops are not much used in R instead those 4 function:
+apply
+sapply
+tapply   
+mapply
+
+
+

@@ -1,0 +1,208 @@
+Statistical Inference - Tölfræðileg ályktun
+MoE  - margin of error
+Stratify = group by
+
+=============Parameters and estimates and CLT in use===================
+
+population - is the elements in the sampling model urn
+parameter - number that summarizes data for an entire population
+sample - observed data from a subset of the population
+estimate - Data driven guess of the poplulation parameter	
+
+spread/d = 2p-1 # if p is smaller then 0.5 then the opposite is more likely by a margin d (we get negative d i.e. -0.1 is 10% margin to the opposite), but SE of the spread is prob. high (+- 20 %) meaning the sample size used in this case (25) is too small since the SE is larger then the spread (d)
+
+x-bar is sum of random draws/ constant = aprox normal
+change x-bar to standard normal random variable Z by (x-bar - E[x-bar]) /SE[x-bar]
+
+CLT - Then the probability of x-bar being withing 0.01 of actual p is
+Pr(Z <= 0.01/sqrt(p*(1-p)/N)) - Pr(Z <= -0.01 / sqrt(p*(1-p)/ N)) in R this is pnorm(0.01/se) - pnorm(-0.01/se)
+
+We can use CLT with x-bar instead of actual p, "plug-in estimate" - ^ over values means estimates
+	ŜE(x-bar) = sqrt(x-bar(1-x-bar)/N)
+	
+CLT - Then the probability of x-bar being withing 0.01 of actual p is
+Pr(Z <= 0.01/sqrt(x-bar*(1-x-bar)/N)) - Pr(Z <= -0.01 / sqrt(x-bar*(1-x-bar)/ N)) in R this is pnorm(0.01/se) - pnorm(-0.01/se)
+# Calculate the probability that the error is 0.01 or larger
+1 - pnorm(.01, 0, se_hat) + pnorm(-0.01, 0, se_hat) is same as 1 - pnorm(0.01/se_hat) + pnorm(-0.01/se_hat)
+
+Margin of error MoE
+MoE = 2*ŜE - 95% chance that x-bar will be within 2 SE of actual p - same as confidence interval and more accurate is qnorm(97.5) * ŝe
+
+Bias causes error even though we use very large data, probability of reaching every "sub-group" is not the same and people answering that end up not voting may cause bias
+	Historically bias in election polling is about 1-2%
+	
+=============Confidence intervals and p-values===================
+
+We can use statistical theory to compute Pr that given interval contains true p
+	95% confidence intervals have 95% Pr of including p, MoE is aprox 95% interval
+	we have to find -z <= Z <= z interval so 99% confidence interval is Pr(-z <= Z <= z) = 0.99
+	Size of confidence interval is q and z = (1-q)/2
+	qnorm(0.975) is about 2 standard errors (MoE) so z = qnorm(0.975)
+	spread is the same interval, like if the spread is -0,1 - 0,1 it means that the actual p is around X by +-10%    ------ X_hat <- (d_hat+ 1)/2
+	
+	The lower bound of the 95% confidence interval is equal to X¯−qnorm(0.975)∗SE(X¯)
+	The upper bound of the 95% confidence interval is equal to X¯+qnorm(0.975)∗SE(X¯)
+	For the spread it is:
+	The lower bound of the 95% confidence interval is equal to d¯−qnorm(0.975)∗SE(X¯) ---- where s_hat is 2* se[x-hat]
+	The upper bound of the 95% confidence interval is equal to d¯+qnorm(0.975)∗SE(X¯)
+
+
+	
+	Remember
+	 	(X-bar - p)/ŜE is a aprox normal random variable -  which has avg 0 and SE +-1 and denoted Z
+
+Power is the probability of detecting a spread different then 0
+	A confidence interval that includes a spread of 0 does not imply a close election, it means the sample size is too small == lack of power
+
+p-values 
+	Related to confidence levels, common in scientific literature
+	Urn with blue/red
+		What is the proportion of blue == the spread ?
+		Are there more blue then red == 2p-1 > 0 ? Meaning is the spread bigger then 0
+		
+		100 beads, we count 52 blue = 52/100 * 2 - 1 = 4% spread
+		but this is a chance, the actual spread could be 0.... so we use the NULL HYPOTHESIS
+		
+		p-value - how likely is to see the observed spread when the null hypothesis is true?
+		That is Pr(|X-bar - 0.5| > 2% )     ath right side is the expected value 0.02 - standard normal(Z) with null hypothesis would be sqrt(N *) 0.02/(sqrt(0.5)* (1-0.5)) 
+		
+		So Pr(|X-bar-0.5| > 2%) becomes Pr(sqrt(N)* |x-bar - 0.5|/0.5 > Z)
+	
+	Relationship between confidence intervals and p-value
+		If the confidence interval is 95% and does not include 0 then p-value must be smaller than 0.05 == 1 - 95% = 5%
+
+Recall that, by default, pnorm() gives the CDF for a normal distribution with a meSan of μ=0 and standard deviation of σ=1. To find p-values for a given z-score z in a normal distribution with mean mu and standard deviation sigma, use 2*(1-pnorm(z, mu, sigma)) instead.
+
+2*(1-pnorm(estimate/se_hat))
+
+======================Section 4 statistical models=====================
+
+Poll Aggregators - Aggregators combine results from many places, like poll aggrigators combine polls to simulate a poll with a larger sample size
+
+	Different poll aggregators will generate different models of election results from same data. They use different statistical models	
+	
+          data-driven models
+	?ungroup() #remove grouping
+	#We are working with pollsters and in a urn, but instead of discreat values of 0/1 we have
+	#the continous spread value from -1 to 1
+	#Then the sd of the urn is no longer sqrt(p*(1-p)), it is unknown parameter == sigma
+	#Means that we have two unknown parameters, expected spread d and sigma (sd)
+	#We can estimate sigma with SAMPLE STANDARD DEVIATION - sd() does this in R
+	
+	Bias model samantekt
+	First Estimate is Y_bar2 - Y_bar1
+	Standard error of the estimate is sqrt(sd(spread2)²/N2 + sd(spread1)²/N1)
+	
+	t-statistic  = estimate(bias2-bias1)/SE_estimate
+	The area of statistics that does this is called Analysis of Variance or ANOVA. 
+	The idea is to compare the variability across polls to variability within polls. 
+	
+	# se is sd(spread)/sqrt(N) and then the confidence interval is avg+/- qnorm(0.975)*se
+	
+	Bayesian statistics
+	
+	Apply Bayes' theorem to calculate the probability of A given B.
+	90% probability of candidate to win proportion p is larger then 0.5 (50%)
+	
+	Bayes' Theorem states: Pr(A|B) = Pr(B|A)* Pr(A)/Pr(B)
+	
+	Bayes/Hierarchy model
+	9/20 bats is 0.45 success rate with the se = sqrt(0.45*(1-0.45)/20) = 0.111, 95% Confidence interval = 0.45 -/+ 2*se = 0,228 - 0,672
+	The method has two problems
+		1. Very large confidence interval
+		2. This is centered around 0.45, so best guess is it will break the 80 year old record
+			-That is unlikly to you if you follow baseball, and that intution is based on out hierarchcal model, that factors from years of following baseball
+			- But how do we quantify that intuition?
+		1. see average for all players last three seasons and the sd of it
+			- 0.275 and 0.027 the se so 0.45 is anomaly (6 se from the avg!!)
+			
+	The hierarchy model
+		Example of two levels
+		1. level = Prior distribution: p ~ N(mu, tau(se)) - randomness in picking a player  -----   mu = 0.27, tau = 0,027     ---- player to player variability (natural born p)
+		2. level = sampling distribution: Y| p ~ N(p, sigma) - randomness in the performance of the particular player  ---- sigma² = p(1-p)/N  ------- player performance variability due to 		  		       	luck(day performance)
+		1. level would then be p ~ Normal or N(0.275,0.027) here we have tau 0.027
+		2. level Y| p~ N(p, 0.111) ---- here we have sigma 0.111
+		Now compute posterior distribution to summarize our estimate for p, we use Bayes's continous version
+		E(p|y = 0.45) = Bmu + (1 -B)Y       ATH this is a weighted average between mu (all players) and Y (joses ones) and if B is 1 the mu = Y and Jose is average, if B is 0 the past does not 						matter Jose's avg is what was given 0.45
+		B = sigma²/(sigma² + tau²) means B is closer to one when sigma is Large and therefor Jose closer to average player
+			If we do not trust our observed data,Y, then sigma is high - if we trust it then sigma is low
+		E(p|y = 0.45) = mu + (1-B)(Y-mu) == 0.275 + (1-0.9441379)(0,45-0,275) == 0.285 little more then average
+		
+		The standard error for our posterior distribution is SE(p|y)² = 1/(1/sigma² + 1/tau²) = sqrt(0.00069) = 0.026 is the standard deviation
+		So according to the Bayesian approach the expected value with 95 confidence interval for Joes is 0.285 -/+ 2*SE = 0.285 -/+ 0.052,,
+		
+		If there is a general bias, affecting all - then it must be added to the sigma (And therefor lowering the winning odds)
+		
+		
+		left_join(), joins two vectors by common column like add <- (state, actual_data) and ci_data <- (state, and alot more) - then ci_data %>% left_join(add, "state") will pair the 			actual_data to its state in add to the same state in ci_data
+		n() - counts how many members are in each group that has been grouped with group_by()
+		
+		#Rotate Axis Labels Perpendicular to the Axis
+		#theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+		
+		===t-distribution====
+		
+		CLT can be used for small samples, like 15, but then we must estimate at least second parameter, like sigma. But with another parameter comes another variability and if not taken
+		into account, the confidence interval is overconfident - in very large samples, this extra variability is not a problem.
+			Under 30 sample sizes then we have to be careful with CTL and of normal distributed, we have mathematical theory to tell us how much bigger the confidence intervals 
+			must be to take sigma variability into accoun = t-distribution
+			
+			Remember Z <- (x_bar - d)/(sigma*sqrt(N)) ---- estimate spread - actual spread, and this Z has expected value 0 and SE 1
+			but in practise we do not know sigma so we use s and there we get bias/variability then the Z follows t-distribution
+				N-1 degrees of freedom, so higher samples have higher degree of freedom and the tails are closer to the normal distribution tails
+			REMEMBER QQ PLOT we can compare our sample distribution to theoretical normal distribution
+			
+			Very cool, in normal distribution we use, for 95% confidence interval, the quantile qnorm(0,975) or 1,96 SE, but if we want to use t-distribution we use the quantile for N-1 				freedom degree - so in sample size 15 we use for t-distribution 14 or qt(0.975, N-1) as the small z that gives use MoE as = z*sd(spread)/sqrt(N) and we can use pt() instead of 				pnorm()
+			
+			
+			
+		========================association and chi-squared tests to perform inference on binary, categorical, and ordinal data.=============================
+				Data from binary data (1/0, true or false) are often summarized in a two-by-two tables, p-value from those tables can be calculated with the 
+				fisher.test(table, alternative = "greater") function
+			
+				If the sums of the rows and the sums of the columns in the two-by-two table are fixed, then the hypergeometric distribution and  Fisher's exact test can be used. 				Otherwise, we must use the chi-squared test. Meaning fixed, there are contraint on possible ways to fill the table [can use hypergeometric distribution]
+			
+				The function chisq.test() takes a two-by-two table and returns the p-value from the chi-squared test.
+	
+				The odds ratio states how many times larger the odds of an outcome are for one group relative to another group.
+				
+				I.e. funding to researches has gender bias?? it is 18% for men and 15% woman we take the average is between 16-17%... now test how funding would split if it was 				random, then we can use Chi-squared test
+						1. create two-by-two table
+							two_by_two <- tibble(awarded = c("no", "yes"),  #A tibble is a subtype of a data frame that is optimized for data science applications
+							    men = c(totals$no_men, totals$yes_men),
+							     women = c(totals$no_women, totals$yes_women))
+							     
+					        2. The test is supposed to compare the chi-table to the expected overall funding rate table [null hypothesis table]
+								# compute null hypothesis two-by-two table
+								tibble(awarded = c("no", "yes"),
+									   men = (totals$no_men + totals$yes_men) * c(1-funding_rate, funding_rate),
+									   women = (totals$no_women + totals$yes_women) * c(1-funding_rate, funding_rate))
+					   	
+					   	3. # chi-squared test
+							chisq_test <- two_by_two %>%
+							    select(-awarded) %>%  chisq.test() 
+							    chisq_test$p.value  #we get a p-value that gives us that the probability that the funding is like it was or bigger 									difference is 5,1 under null hypothesis == much gender bias - but be careful p-value alone is not enough, specially if the sample size is 								big, the odds ratio might be barely bigger then one!
+						4. Better to show confidence intervals but hard with odds ratio, because its ratio of ratios - it is possible with generalized linear models.
+						
+						low p-value, that is under 0.05 mean significant difference, that is if the ratio is also far from 1
+												 
+	   					How to access data in tables, here 3 columns and 2 rows : odds_C <- (totals[[2,2]] / sum(totals[[2]])) / (totals[[1,2]] / sum(totals[[2]]))
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+		
+		
+	

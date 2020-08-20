@@ -1,0 +1,124 @@
+Average +- standard deviation
+
+To determine if this is enough to to understand data we check the factor's distribution
+Types of data
+Categoricals: ordinal vs non-ordinals ---- small groups such as sex(male,female) or region(west,east,north,south) spice(mild,medium, hot) - last one is ordinal since it can be ordered
+Numericals: discreat and continuous ---- continuous is i.e. height, since you can always be more and more precise 8.1 or 8.11 or 8.111
+Cumulutive distribution function (CDF) used to show distribution in a numeric data, The CDF defines the proportion of the data below a given value a for all values of a.
+Note that the CDF can help compute probabilities. The probability of observing a randomly chosen value between a and b is equal to the proportion of values between a and b, which we compute with the CDF.
+Dæmi: 
+  	1. create a sequence a <- seq(min(myData),max(myData),length = 100)
+  	2. Create a function to calculate probabilty x>=a for all a. ---- CDFProb <- function(x){mean(myData <= x)}
+  	3. Create values for the whole dataset by running it through the CDFProb function using sapply (some kind of R loop) CDFValue <- sapply(a,CDFProb)
+  	4. then plot a vs its probability ---- plot(a,CDFValue)
+Histograms show better the distributions for continuous numerical  data then CDF and Smooth Denisity Plots do the same but look MUCH BETTER
+	SD plots use density on Y axis not count like histograms
+	We need to make a histogram, not based on a count but frequency.
+	Smooth density plot is scaled so the area under the curve (AUC) adds up to 1
+Normal Distribution/bell curve/Gaussian Distribution
+     For an interval A <-> B we can calculate the porpotions of values inside using Normal Distribution formula.
+     Centered around the mean and the standard deviation +-, 95% of values are within 2(SD) from the mean
+     Standard deviation is the average distance between the values and the mean
+     use mean(x) and sd(x) scale(x) gives us a standardized unit
+     Standardized units are very useful, cause they work on all normal data. So find propotion within 2 SD we can do mean(abs(STANDARDUNIT <2)) where abs is absolute value, so does for both -2 and 2
+     68-95-99.7 rule means about 99,7% - 95,4% - 68,3 % are inside the corrisponding range.
+     Cumulitive distribution in a Normal distribution can be found with:  1-pnorm(a,avg,sd)
+     		Means we can find the CDF point (the likelyness of bigger than a) i.e. 70.5 inches : 1-pnorm(70.5,mean(x),sd(x))
+   mean(x) and sd(x) give the same as median(x) and mad(x) if there is a normal distribution, median and mad are not as sensitive to outliers(like if one variable of 900 is typed wrong)
+   
+Quantiles are cutoff points that divide a dataset into intervals with set probabilities. The qth quantile is the value at which q% of the observations are equal to or less than that value.
+	quantile(data,q)
+	Percentiles are the quantiles that divide a dataset into 100 intervals each with 1% probability. You can determine all percentiles of a dataset data like this:
+	p <- seq(0.01, 0.99, 0.01)
+	quantile(data, p)
+summary(heights$height) #Cool function that gives the min,max and mean value of a data and the quartiles 1s(25%)t,median(50%),3th(75%). ATH in Normal distribution then mean ~ median 
+The pnorm() function gives the probability that a value from a standard normal distribution will be less than or equal to a z-score value z. 
+qnorm() and pnorm() are inverse functions: pnorm(x) = qnorm(pnorm(x) )
+qnorm(p,avg,sd) #Theoretical quantiles
+Theoretical quantiles can be compared to sample quantiles determined with the quantile function in order to evaluate whether the sample follows a normal distribution.
+QQ-plots, are used to check whether distributions are well-approximated by a normal distribution. THAT IS data Quantile ~theoretical Quantile == normal distribution
+ATH abline(0,1) #identity line to see correlation
+QQ plots are not done with ggplot
+plot(theoretical_quantiles, observed_quantiles)
+
+BOXPLOTS - when normal Distribution does not apply (abline does not follow the QQ plot), so we can not give mean()+sd() but we want compact summary
+	Instead provide range + quartiels (total five numbers) and ignore the outliers
+	Then we plot those numbers with a boxplot... 25% belowe, 75%above, median as the line and the wiskers the range
+	
+SECTION 2 - ggplot2
+Three components:
+Data
+Geometry: scatterplot,box plot, histogram, qq plot, smooth density, bar plot ATH we use geom_someplot i.e. geom_point is a scatterplot
+Mapping: aes() function connects the data with what we see on the graph - aesthetic mapping
+Scale: Define the scale, i.e. log or e : scale_x_continuous(trans = "log10")
+Tiles: titles and such: xlab("something"), ylab("something"), ggtitle("something")
+Themes: ggthemes package can be loaded and used to set themes for ggplots i.e. library(ggthemes) then + theme_economist()
+ggrepel package #has geometry i.e to add labels so they do not fall on each other
+	1. Adding data to ggplot2: ggplot(data = murders) or murders %>% ggplot()
+	2. Add layers with the + : murders %>% ggplot() + LAYER1 + LAYER2....
+	
+ATH when creating QQ-plot , use scale(x) to get the data to standard unit, easier to compare with theoretical distribution
+heights %>% filter(sex == "Male") %>% ggplot(aes(sample = scale(height))) + geom_qq() + geom_abline()
+Package gridextra #allows us to show different plots next to each other - to use, assign plots to objects and then grid.arrange(p1,p2, ncol = 2)
+
+
+	
+SECTION 3 - summarize data
+na.rm = TRUE #we can use this to ignore NA in data.frames
+summarize() can create new table from data tables which summarize what we want i.e. s<- heights %>% fiter(sex = "Male") %>% summarize(average = mean(height), standard_deviation = sd(height))
+group_by() #dplyr function that groups data.frames i.e. group_by(sex), then summarize provides a summarize on each group respectevly
+arrange() #sorting function i.e. murders %>% arrange(population) sorts by population and arrange(desc(rate)) gives in decending order , highest first
+arrange(firstArgument,secondArguement) #sorts first by first the each of the first by second
+top_n(n, column) #gives the first n varialbes of the column
+dot placeholder #Many functions need numeric values but i.e. dplyr PIPELINE provides data.frame, to "change" it use %>% .$columnname for example %>% .$rate returns rate as a numeric object
+
+SECTION 3 - GAPMINDER
+Faceting -mutliple side-by-side plots and keeps the original scale which makes it easier to compare progress
+facet_grid() #used as a layer to ggplot2, facet_grid(continent~year) meaning facet_grid(row~column), if just column, like year, use . like face_grid(.~year)
+Time series plots - use time on x and variable of intrest in y  
+Transformations are useful to understand distribution (using log10 or log 2 - loge is hard to intererpt) USING log2 means that everytime a value doubles - log tranform increases by one, log10 increase by 10
+Statistical language:
+	modes #bumps - value with the higest freaquency - normal distribution then mode is the average. If multiple modes, each mode is local mode
+Stratify into regions or subgroups and then plot #
+reorder() #We can order factors as we want, are alphabetically by default, like factor <- c(Asia,asia,west,west,west) levels(factor) gives asia, west but can order by i.e. mean if
+the factor where assosiated with some number factors reorder(factor,value, FUN = mean)
+intersect(vector1, vector2) #New vector with elements found in both vectors
+density plots # can take the count varible for the y axis instead of the auto density variable (to see better the size of the groups used) the use aes(GDP, ..count..) two dots access the variable
+Remember in smooth density plots geom_desity(alpha = 0.2, bw = 0.75) alpha svo að groups fade in color and bw to make unsmooth smooth
+case_when #useful to defining groups
+	mutate (group = case_when(.$region %in% c("Northern Europe","Western Europe", "Northern America")~"Western Countries", .$continent == "Americas" & .$region != "North America" ~ "Third World Countries"))    Means if %in% is true then group as Western... and so forth.... VERY COOL And if we want to control the levels manually 1. change group to factors and control the levels like
+	mutate (group = factor(group, levels(how we want to order the group)))
+	
+Ecological Fallacy - assuming that the mean describes all members of the group
+trans = "logit"  #logistic transformation (logit transformation) for proportional rate p is f(p) = log(p/(1-p)) means we are logging the odds - THIS SCALE IS GOOD WHEN DIFFERENCES ARE CLOSE TO 0 OR 1
+
+SECTION 5 - GENERAL PRINCIPALCS FOR EFFECTIVE DATA VISUALIZATION
+Humans are not good at quantifying angels (like in pie charts) --- ALWAYS use LENGTH or POSITION, since humans are better at linear measures
+USING BARCHARTS, dishonest to NOT use 0 - if not used small difference can be made be seen much more than actually is.
+BUT if using POSITION rather then LENGTH then it is not necessary to use 0 - that is we can remove lower parts if they do not have any information
+
+SHOW distributions and best way to compare it
+If using points instead of bars - when looking at distribution we can use jitter plot instead of geom_point - geom_jitter(width = 0.1, alpha = 0.2) #moves points a bit horizontally and uses alphablending so more points are darker then fewer
+Comparing plots keep axes the sanme
+ALIGN CHARTS VERTICAL to se HORIZONTAL CHANGES an vice versa
+
+Transformations
+log2, log10, logit when things are multiplicative, logistis transformation when fold changes in odd, square root transformations for count data
+Make comparing things adjacent  
+
+Slope graphs - usually scatter plots are good but when compare variable of SAME type, at different time points and with relatively small number of comparison = slope graphs
+GOOD THING IS WE GET GOOD FEELING OF THE CHANGES BY LOOKING AT THE SLOPE OF THE LINE - WE USE geom_line in ggplot()
+Bland-Altman plot/ MA plot/ Tukey Mean Different plot - shows the difference vs the average 
+
+Encoding the third variable or more - can use position y/x axis, then color + sign + size of point to differ between 3 variables - like opec, region, and population
+Avoid pseudo and gratuitous/tilefnislaus 3d plots - 
+Avoid too many significant digits - R defaults to 7 digits
+	In tables use columns to compare not rows, that is go vertical not horizional
+	option(digits=n) - to set globally how many significant digits to use
+	signif()
+	round()
+
+#Rotate Axis Labels Perpendicular to the Axis
+#theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+

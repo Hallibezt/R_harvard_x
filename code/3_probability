@@ -1,0 +1,192 @@
+
+#####################################################  Discrete Probability  #####################################################
+Probability theory basics
+Pr(A) = probability of event A
+
+Monte Carlo Simulations
+	Repeating random selection so often that it is "equivalent" to doing it endlessly
+	replicate() #repeat event as often as we want
+		events <- replicate(10000, sample(beads,1))
+		tab <- table(events) # summarize the events in a table
+		prop.table(tab) # summarize the events from the table as proportions
+		If we make the repetions large enough, Statistical Theory say that we get closer and closer to statistical outcomes
+	sample(dataset, picks) #auto without replacement pick
+	sample (dataset, picks, replace = TRUE) #change replace to TRUE to set replacement
+	How many Monte Carlo experiments are ENOUGH??
+		- one approach find out where the stability becomes good when x iterations are done over and over
+		
+
+Probabilty distributions
+	Independent events - one outcome does not affect the other i.e. coin toss Pr(heads) = 0,5
+	conditional probability - not independent
+	| means given that like Pr(card 2 is a king | card 1 is a king) = 3/51
+	Multiplicitive rule 
+		Indipendent events = Pr(A)* Pr(B) * Pr(C)
+		Conditional events = Pr(A and B and C) = Pr(A) * Pr(B|A) * Pr(C| A and B)
+		21 
+		given that 1 card is ace the likes of second being 10 points = 1/13 * 16/51 = 0,02
+
+Permutations and combinations
+	permutation() comnputes all the way to select X items from n long list
+	simulated_games <- sample(c("lose","win"), 4, replace = TRUE, prob = c(0.6, 0.4)) #how to use sample to pick randomly - 1. what to pick, 2. how many to pick, 3. replacement allowed?, 4. manually set the prob for each element (else split even)
+	
+	Addition rule
+		A OR B - Venn diagram = Pr(A OR B) = Pr(A) + Pr(B) - Pr (A AND B)
+		Pr(Ace and then facecard) = 1/13 * 16/51 #Multiplication rule
+		Pr(Facecard and then Ace) = 16/52 * 4/51
+		--- Addition Rule --- == Pr(Ace then Face | Face then Ace) = (1/13*16/51) + (16/52 * 4/51) - duplicates which are non in this case since facecard can not be also an ACE
+		
+  N <- seq(1,25,2) #vector of odd numbers from 1-25
+  
+  #####################################################  Continous Probability  #####################################################
+  
+  Here find out distribuion of intervals not single values... use Cumulative Distribution Function [not previosuly used eCDF(empirical cumulative distributuin function)]
+  eCDF: F <- function(a) mean(x<=a) #porpotion <= a
+  The CDF of normal distribution in R is pnorm(a,avg,s) #a is the value we want, average is the average value of the set and s is the standard deviation
+    	means we do not need the entire dataset just the average and sd i.e. pnorm(70.5, mean(x), sd(x)) gives us the porpotion of all under 70.5
+  
+  probability density
+  	Probability density function creates a density curve for the set a, that is under the curve is how a is divided
+  	Probability density function for normal distribution in R is dnorm(z) z-score is the theoretical score of ND i.e. 99,7% of values fall within -3<= z >= 3 so we pick any value litlle larger then 	3 and we should cover most values of the ND.
+	Then we use dnorm(z) and plot it to get the curve:
+		z <- seq(-4,4, length = 100) #create a sequence longer then -3 to 3
+		data.frame(z, f=dnorm(z)) %>% ggplot(aes(x,f)) + geom_line()  #We create a dataframe from the sequence with dnorm(z) and plot z on the x axis and the density probabiltiy in the y axis 
+		
+		
+   Monte Carlo for continous data 
+   	rnorm(n,mean(x), sd(x)) #creates n random numbers in normal distribution from the mean/sd given - can create simulations i.e. for height or what ever
+   	
+Other continous distributions - not normal distributions, density(d), quantile(q), probability distribution(p) and random number generation(r) CDF works for them to in R:
+	Student t - dt(), qt(), pt(), rt()
+	chi-squared
+	exponential
+	gamma
+	beta
+	
+#####################################################  Random Variables and Sampling models  #####################################################
+
+The probability distribution of a random variable tells us the probability of the observed value falling in any given interval.
+
+Sampling model :
+	1. create a urn with the samples in it like this rulette: 
+							color <- rep(c("Black", "Red", "Green"), c(18, 18, 2)) # define the urn for the sampling model
+	2. The sample/pick algorithm 1000 draws
+					n<- 1000
+					X <- sample(ifelse(color == "Red", -1, 1), n, replace = TRUE) #meaning red casino looses a dollar, black wins a dollar
+	3. We can also create an Urn and Sample in one line
+		X <- sample(c(-1,1), n, replace = TRUE, prob = c(9/19,10/19)) #by setting the probability, that we know, in the sample algorithm
+		X <- sum(x) #the sum of the X sample is the earnings/losses
+		
+The probability distribution of a random variable tells us the probability of the observed value falling in any given interval.					
+       That is CDF for an interval is F(a) = Pr(S <= a)
+    	The average of many random variable drawings (like in Monte Carlo) is called "expected value"
+    	The SD of  many random variable drawings (like in Monte Carlo) is called "standard error"
+Here we create Monte Carlo simulation for the Rolette ;  1000 players done 10000 times
+	B <- 10000
+	 S <- replicate(B, {
+	    X <- sample(c(-1,1), n, replace = TRUE, prob = c(9/19, 10/19))    # simulate 1000 spins
+	    sum(X)    # determine total profit
+	})
+	
+	mean(S < 0) probability of losing money [runs where sum(X) was negative]
+	
+	Then we create histogram to visualize the distribution - see it looks normal distributed
+	We can take the mean(S) and SD(S) and plot that line on top of the histogram and see it fits = normal distribution
+	
+	This S was a "binomial distribution" so we did not need Monte Carlo, could just use S+n/2
+	
+	QQ-plot is used to confirm the normal distribution by comparing it to theoretical distribution
+	
+	Distribution in a list of numbers is not same as probability distribution
+		REMEMBER Average : sum(x)/length(x)
+			 Standard Deviation is the average distance from variables to the average : sqrt(sum((x-average)^2)7 length(x))
+ 	Capital letters denote random variables (X) and lowercase letters denote observed values (x).
+ 	In the notation Pr(X=x), we are asking how frequently the random variable X is equal to the value x.
+
+#####################################################  The Central Limit Theoream #####################################################
+	
+	CLT: Law of big numbers.... when number of draws (random variables) is large, the sum of independent draws is aprx normal distrib.
+	 	E[X] = µ is the formula Expected Value of a random variable is mu (mean/average)
+	 	E[X] of one draw is the average of the numbers in the urn... Rollette is -18 and +20 = 2/38 or the average is 0.05 dollar - which is not true for one draw but means
+	 	that for repeated games te casino wins 5 cents per game on average
+	 	SE[X] the standard error, how likely is the Expected Value to fail
+	 		If each draw is independent then SE[X] = sqrt(number of draws) * standard deviation of the numbers in the urn/source
+	 		Find standard deviation in a urn with two values , with proportions p and p-1 = |b-a| * sqrt(p * (1-p)) in rouletter = (1-(-1)) * sqrt(10/19 * 9/19)
+	 		
+		E[X] = ap+b(1−p) #single random variable
+		E[X] * n = n* (ap+b(1−p)) #Sum of draws i.e. 1000 roulette players = 1000* (1*10/19 - (1*9/19)) = 52 dollarar win af 1000 manneskjum
+		
+		SE[X] = |b-a| * sqrt(p*(1-p)) #single standard error
+		SE[X] * n  = sqrt(n) * |b-a| * sqrt(p*(1-p)) #sum of standard errors i.e. 1000 roulette players = sqrt(1000) * |-1-1| * sqrt(9*10)/19) =  dollarar error af 1000 manneskjum
+		
+		CLT in R for the Roulette game
+		mu <- n* (1*10/19 - (1*9/19))
+		se <- sqrt(1000) * 2 * sqrt(9*10)/19)
+		pnorm(0, mu, se) #probability of casino being under 0 dollar after 1000 playes == 4,8 %
+
+		Niðurstaðan er að casino getur reiknað með 52 dollara gróða +-32 dollara af 1000 manneskjum == góð fjárfesting
+	 		
+	List of useful mathematical results in data science:
+		1. The expected value, E[X],of sum of random values is just the sum of E[X) of the individual values == E[X] * n = n*mu 
+		2. E[aX] = a * E[X]
+		3. Variance is the square of standard error == Variance[X] = SE[X]^2
+		4. SE[a*X] = a * SE[X]
+		 
+	 Law of large numbers
+	 	as n increases SE[X] decreases - that is E[X] gets closer to the average of the urn
+	 	ATH only applies when n is very large and events are independent (replace = TRUE)
+	 	
+ 	CLT works on large samples, most often, if the probability of success is small - we need larger samlpe sizes
+ 	
+##################################################### THE BIG SHORT #####################################################
+Default - In finance, default is failure to meet the legal obligations of a loan
+l = loss per forclosure = the loan not paid back + the cost of handling the loan
+p = probability of loan default
+x = the intrest rate 
+The formula l * p + (x * (1-p)) = 0 means loss times Pr(default) + intrest * Pr(paidBack) - find X that breaks even
+	in R: loss_per_forclosure*p/(1-p) = X that gives us 0 
+	Then we take that x/loss_per_forclosure and get the intrest Rate 
+	This break even calculation means that we can end on either side of it and that is to much of a risk (50%)
+	i.e. 1000 loans and the Pr(S<0) = 0.5
+	
+	Lets say we want the risk of ending up in minus be 1 %
+	We want Pr(S<0) be 0.01
+	S or E[X] is a sum of expected values (l * p + (x * (1-p))) * n 
+	SE[X] is |x-l|* sqrt(n * p * (1-p))
+	
+	Now mathematical trix for statistics - add and subtract same quantities on both sides of S - then we end up with "standard normal random variable" on left, with only X as unknown
+		What er do: subtract E[X] from both sides and divide by SE[X] on both sides - Pr(S < 0) becomes Pr(S-E[X]/SE[X] < -E[X]/SE[X])
+			Standard Normal Random Variable is S - E[X] / SE[X] that is sum of Expexted values minus Expected Value divided by Standard Error
+			Z = Standard Normal Random Variable and change E[X] and SE[X] on right side to its formula form
+			Pr[Z < (-(l * p + (x * (1-p))) * n) / (|x-l|* sqrt(n * p * (1-p)))] = 0.01
+			
+			Normal Standard Random Variable has the E[X] = 0 and SE[X] = 1 thats why this is useful cause then we can use qnorm() on the Right side - qnorm(0.01) = -2.326348
+			
+			That means Pr(Z < z) = 0.01 is when z = qnorm(0.01) 
+			Then algebra = -(l * p + (x * (1-p))) * n) / (|x-l|* sqrt(n * p * (1-p)) = z
+					x <- -loss_per_foreclosure*( n*p_default - z*sqrt(n*p_default*(1 - p_default)))/ ( n*(1 - p_default) + z*sqrt(n*p_default*(1 - p_default)))
+					then that x/loss_per_foreclosure = is the intrest rate need to loose in only 1/100
+			
+	Finding it out theoretically by Monte Carlo - gives very close results
+			B <- 100000
+		profit <- replicate(B, {
+		    draws <- sample( c(x, loss_per_foreclosure), n, 
+				        prob=c(1-p, p), replace = TRUE) 
+		    sum(draws)
+		})
+		mean(profit)    # expected value of the profit over n loans
+		mean(profit<0)    # probability of losing money
+		
+	CLT states : sum of INDEPENDENT draws of random variable follows Normal Distribution - NOT INDEPENDENT this does not hold
+	As long as E[X] is positive increasing n will decrease the change of loosing money - Law of Large numbers, it will go closer and closer to the E[X] and SE[X] is smaller and smaller
+	
+	Law of large numbers is what made the crazyness.... as long as mu [the expexted value] is positive the n can be large enough to get  probality of loss very small
+	   How to find out? z, which is qnorm of our desired probability, so if n >= z² * sigma²  / mu² then we are garantete of prob less then desired.
+	
+					
+			
+			
+		
+		
+	
+   	
