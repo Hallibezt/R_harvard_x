@@ -1,0 +1,40 @@
+Ctrl + shift + enter - runs the whole script
+In terminal Haraldur@Delpux means username@computername
+
+pwd - print working directory
+~ - tilda can be used to represent the home directory like ~/R is enough to get to the R directory if its sub-directory from home
+ls - list directory content cool!!!!!!!!
+mkdir - make directory - mkdir my_directory or create many at same time like : mkdir music videos pictures
+rmdir - removes empty directorys, rm command is if we want to remove directorys that are not empty
+cd - change directory - can use cd full path, cd ~/path or cd relative path  
+	Fullpath
+	~/ assumes the path is under your home and cd ~ takes us always back home to home directory
+	relative path : like cd R - then it searches for R under the current working directory
+	cd .. moves us back to the parent directory
+	cd ../.. we go two directories back and so on
+	cd - you go all the way back to where you started instead of cd ../../../........
+	cd if just cd you go back to home directory
+	cd / you go straight to root directory
+TAB - autocompletes !!!!!!!!!!!!!!!!!!
+
+mv - move file command WARNING no overwrite warning if two files of same name
+mv - works like: mv ~/R/mycode.txt ~/MyCode/   means I move the text file to MyCode directory
+mv - can also be used to change the name of a file then mv code.txt mycode.txt = here I just change the name but not move it from the directory
+cp - copy the file, works just like move just copies (can rename in the process if we want)
+rm - permanent remove from the filesystem, can do many at a time like rm fileone.txt filetwo.txt ....
+xdg-open filename.jpg #open file with its default app and urls
+
+TO remove or copy whole directories we need to learn how to use arguements
+like rm -r myNotEmptyDirectory here -r is an argument
+
+less - opens a file in the less viewer
+	q - quits the viewer
+	arrow keys to move up and down
+
+Get the path for our default working directory in R - type : getwd
+We always use relative path when we work in R, relative to our getwd
+
+In R
+	1. script for getting raw data
+	2. script to wrangle raw data to R data
+	3. Script for analysis of the R data
